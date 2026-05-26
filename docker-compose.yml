@@ -1,0 +1,90 @@
+# docker-compose.yml
+# This file says: "Start ALL these services together"
+
+version: '3.8'
+
+services:
+  
+  # ─────────────────────────────────────
+  # PostgreSQL Database
+  # ─────────────────────────────────────
+  db:
+    image: postgres:15         # Use official PostgreSQL 15 image
+    container_name: rpg_db     # Name for easy reference
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persist data!
+    environment:
+      POSTGRES_DB: productivity_rpg
+      POSTGRES_USER: rpg_user
+      POSTGRES_PASSWORD: rpg_password
+    ports:
+      - "5432:5432"            # host:container port mapping
+    healthcheck:               # Ensure DB is ready before app starts
+      test: ["CMD-SHELL", "pg_isready -U rpg_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────
+  # Redis Cache
+  # ─────────────────────────────────────
+  redis:
+    image: redis:7-alpine      # Lightweight Redis image
+    container_name: rpg_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data       # Persist Redis data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ─────────────────────────────────────
+  # Django Backend
+  # ─────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rpg_backend
+    volumes:
+      - ./backend:/app        # Live code reload!
+    environment:
+      - DATABASE_URL=postgresql://rpg_user:rpg_password@db:5432/productivity_rpg
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+    ports:
+      - "8000:8000"
+    depends_on:               # Wait for db and redis first
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python manage.py runserver 0.0.0.0:8000
+
+  # ─────────────────────────────────────
+  # React Frontend
+  # ─────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rpg_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules      # Don't override installed packages
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+# ─────────────────────────────────────
+# Named Volumes (Persistent Storage)
+# ─────────────────────────────────────
+volumes:
+  postgres_data:  # Database files persist even if container restarts
+  redis_data:     # Cache persists
