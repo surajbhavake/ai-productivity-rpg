@@ -1,0 +1,36 @@
+# .gitignore contents — WHY each line matters:
+
+# Python
+__pycache__/          # Compiled Python files (auto-generated)
+*.pyc                  # Compiled Python bytecode
+*.pyo                  # Optimized Python bytecode
+.Python                # Python environment
+venv/                  # Virtual environment (HUGE folder, not your code)
+env/                   # Another common venv name
+*.egg-info/            # Package info
+
+# Django
+*.log                  # Log files (can contain sensitive info)
+local_settings.py      # Local overrides
+db.sqlite3             # Local database (not for production)
+media/                 # User uploaded files
+
+# Environment Variables (THE MOST IMPORTANT!)
+.env                   # ⚠️ NEVER commit this! Contains secrets!
+.env.local
+.env.production
+
+# Node.js
+node_modules/          # JavaScript packages (HUGE, 100k+ files!)
+dist/                  # Build output
+build/                 # Build output
+.next/                 # Next.js build
+
+# IDE
+.vscode/settings.json  # Personal editor settings
+.idea/                 # IntelliJ settings
+*.swp                  # Vim swap files
+
+# OS
+.DS_Store              # Mac metadata files
+Thumbs.db              # Windows thumbnail cache
