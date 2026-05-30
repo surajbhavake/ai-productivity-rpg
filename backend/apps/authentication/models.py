@@ -102,7 +102,7 @@ class User(AbstractUser):
             
         return "Transendent"
     
-    #------METHODS(BUSINESS LOGIC)-------
+    #------METHODS(BUSINESS LOGIC)-------(adding ,removing or updating dataing the database)
 
     def add_xp(self,amount,source="task"):
         self.xp += amount
