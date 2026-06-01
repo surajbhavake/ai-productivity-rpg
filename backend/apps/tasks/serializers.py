@@ -57,3 +57,38 @@ class TaskSerializer(serializers.ModelSerializer):
     #ModelSerializer only looks for dababase coloum it ignores python method and property
     #so that's why we need to specifiy them
 
+    class Meta:
+        model = Task
+        fields=[
+            'id',
+            'title',
+            'description',
+            'priority',
+            'status',
+            'category',
+            'category_id',
+            'due_date',
+            'estimated_minutes',
+            'actual_minutes',
+            'xp_reward',
+            'bonus_reward',
+            'total_reward',
+            'is_overdue',
+            'tags',
+            'notes',
+            'is_recurring',
+            'recurrence_pattern',
+            'competed_at',
+            'created_at',
+            'updated_at',
+        ]
+
+        read_only_fields=[
+            'id',
+            'created_at',
+            'completed_at',
+            'xp_reward',
+            'updated_at',
+        ]
+
+
