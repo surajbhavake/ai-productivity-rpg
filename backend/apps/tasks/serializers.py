@@ -92,3 +92,48 @@ class TaskSerializer(serializers.ModelSerializer):
         ]
 
 
+
+        #value.strip() removes the empty spaces from start to end
+        #
+
+    def validate_title(self,value):
+        
+        #here we check if the text is empty after removing the spaces
+        
+        if not value.strip():
+            #if user type nothing('') or just typed space(" ")
+            #so the condition will become true
+            raise serializers.ValidationError(
+                "Title cannot be empty or be whitespaces"
+            )
+        return value.strip()#if text is valid it will return the cleaner version for database
+    
+    def validate_due_date(self,value):
+        
+        from django.utils import timezone
+        #it check if the user is not typing the old date for due_date
+        if value < timezone.now():
+            raise serializers.ValidationError(
+                "Due date must be in future"
+            )
+        return value
+    
+
+    #it is a cross-field validate mean it can inspect everything and its a multiple field validation
+    #attrs means entire set of data 
+    def validate(self,attrs):
+        #check if user said "yes this task should repeat"
+        #and then check if the user failed to provid the pattern e.g.daily, weekly then
+        #it will raise the alert
+        if attrs.get('is_recurring') and not attrs.get('recurrence_pattern'):
+            raise serializers.ValidationError({
+                'recurrence_pattern':'Recurring task must have a recurrence pattern'
+            })
+        return attrs
+    
+
+    #after all the procecure what we have mention in serializers the the model will made 
+    #e.g. Serializer recives the data from user then it will process it and then create task object from task model then
+    #save function will run in the task model and then the database will be updated
+
+
