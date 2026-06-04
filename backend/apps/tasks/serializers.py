@@ -50,7 +50,7 @@ class TaskSerializer(serializers.ModelSerializer):
         allow_null = True,
     )
      # Computed properties from model
-     #as in model we calculated it buy in here we are showing 
+     #as in model we calculated it but in here we are showing 
      #it in api section when user access api/task those two will show with task fields
     is_overdue = serializers.BooleanField(read_only=True)
     total_xp = serializers.IntegerField(read_only=True)
