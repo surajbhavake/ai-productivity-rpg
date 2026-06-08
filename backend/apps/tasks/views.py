@@ -37,4 +37,26 @@ class TaskViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at','due_date','priority'] #it basically used for soring purpose only these field are allowed to sort mean ascending and descending of data
     ordering = ['-created_at']#its default sorted to newest first mean descending  if user doesn't specify one 
 
+    #we have used this for data insolation so only user can see only user data not other
+    #user data
+    def get_queryset(self):
+        return Task.objects.filter( #this line is used for filter
+            user = self.request.user#this line tell that it can see  task from current login in user only 
+
+        ).select_related('category')#this is for performance optimization still don't have much info on it
+    
+
+    def perform_create(self,serializer): #this runs automatically when data is validated but before data is saved in database
+        serializer.save(user= self.request.user)#this means only save the data when the user is current login user so it prevent fraud 
+
+    #We use action decorator when we want to create custom endpoint like /tasks/{id}/complete/
+    @action(
+        detail = True,#it means take single task like /tasks/{id}/complete/
+        method = ['POST'],#only post request
+        url_path = 'complete',#its the url path then it becomes /tasks/{id}/complete/
+    )
+    def complete(self,request,pk=None):
+        
+
 # Create your views here.
+
